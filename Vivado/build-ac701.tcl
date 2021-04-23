@@ -1,5 +1,5 @@
 #
-# build.tcl: Tcl script for re-creating project 'ac701_axieth'
+# build.tcl: Tcl script for re-creating project 'ac701_procless'
 #
 #*****************************************************************************************
 
@@ -17,7 +17,7 @@ if {![string equal $ver $version_required]} {
   return
 }
 
-set design_name ac701_axieth
+set design_name ac701_procless
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."
@@ -40,11 +40,13 @@ set_property -name "ip_output_repo" -value "$proj_dir/$design_name.cache/ip" -ob
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 
+# Adding IP source files
+add_file [glob $origin_dir/src/ip/*.v]
+
 # Create 'sources_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
-
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]

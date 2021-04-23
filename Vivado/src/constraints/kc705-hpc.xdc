@@ -135,7 +135,7 @@ set_property PACKAGE_PIN C21 [get_ports reset_port_3]
 
 create_clock -period 8.000 -name ref_clk_clk_p -waveform {0.000 4.000} [get_ports ref_clk_clk_p]
 
-# Global reset
+# Global reset (CPU_RESET pushbutton)
 set_property PACKAGE_PIN AB7      [get_ports glbl_rst]
 set_property IOSTANDARD  LVCMOS15 [get_ports glbl_rst]
 set_false_path -from [get_ports glbl_rst]
@@ -159,6 +159,11 @@ set_property IOSTANDARD  LVCMOS25 [get_ports frame_error_3]
 set_property IOSTANDARD  LVCMOS25 [get_ports activity_flash_3]
 
 #### Module Push_Buttons_4Bit constraints
+# CENTER: update_speed
+# WEST:   config_board
+# SOUTH:  pause_req_s
+# NORTH:  reset_error
+# EAST:   NOT USED
 set_property PACKAGE_PIN G12      [get_ports update_speed]
 # Rev B board
 #set_property PACKAGE_PIN AD7      [get_ports config_board]
@@ -166,10 +171,12 @@ set_property PACKAGE_PIN G12      [get_ports update_speed]
 set_property PACKAGE_PIN AC6      [get_ports config_board]
 set_property PACKAGE_PIN AB12     [get_ports pause_req_s]
 set_property PACKAGE_PIN AA12     [get_ports reset_error]
+#set_property PACKAGE_PIN AG5      [get_ports NOT_USED]
 set_property IOSTANDARD  LVCMOS25 [get_ports update_speed]
 set_property IOSTANDARD  LVCMOS15 [get_ports config_board]
 set_property IOSTANDARD  LVCMOS15 [get_ports pause_req_s]
 set_property IOSTANDARD  LVCMOS15 [get_ports reset_error]
+#set_property IOSTANDARD  LVCMOS15 [get_ports NOT_USED]
 
 #### Module DIP_Switches_4Bit constraints
 set_property PACKAGE_PIN Y28      [get_ports mac_speed[0]]
@@ -303,3 +310,11 @@ create_waiver -quiet -type CDC -id {CDC-10} -user "tri_mode_ethernet_mac" -tags 
 
 create_waiver -quiet -type CDC -id {CDC-11} -user "tri_mode_ethernet_mac" -tags "11999" -desc "Part of reset synchronizer. Safe to ignore" -from [get_pins example_resets/glbl_reset_gen/reset_sync4/C] -to [list [get_pins -of [get_cells -hier -filter {name =~ */sync_glbl_rstn_tx_clk/async_rst0_reg*}] -filter {name =~ *CLR}] [get_pins -of [get_cells -hier -filter {name =~ */sync_stats_reset/async_rst0_reg*}] -filter {name =~ *PRE}] ]
 
+# Configuration via BPI flash for KC705
+set_property BITSTREAM.CONFIG.BPI_SYNC_MODE DISABLE [current_design]
+set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN DISABLE [current_design]
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]
+set_property CONFIG_MODE BPI16 [current_design]
+set_property CFGBVS VCCO [current_design]
+set_property CONFIG_VOLTAGE 2.5 [current_design]

@@ -1,5 +1,5 @@
 #
-# build.tcl: Tcl script for re-creating project 'kcu105_lpc_axieth'
+# build.tcl: Tcl script for re-creating project 'kcu105_hpc_procless'
 #
 #*****************************************************************************************
 
@@ -17,7 +17,7 @@ if {![string equal $ver $version_required]} {
   return
 }
 
-set design_name kcu105_lpc_axieth
+set design_name kcu105_hpc_procless
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
 set origin_dir "."
@@ -40,11 +40,13 @@ set_property -name "ip_output_repo" -value "$proj_dir/$design_name.cache/ip" -ob
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 
+# Adding IP source files
+add_file [glob $origin_dir/src/ip/*.v]
+
 # Create 'sources_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
-
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
@@ -59,17 +61,17 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 set obj [get_filesets constrs_1]
 
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/src/constraints/kcu105-lpc.xdc"]"
+set file "[file normalize "$origin_dir/src/constraints/kcu105-hpc.xdc"]"
 set file_added [add_files -norecurse -fileset $obj $file]
-set file "$origin_dir/src/constraints/kcu105-lpc.xdc"
+set file "$origin_dir/src/constraints/kcu105-hpc.xdc"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property "file_type" "XDC" $file_obj
 
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/src/constraints/rgmii-01-3.xdc"]"
+set file "[file normalize "$origin_dir/src/constraints/rgmii-0123.xdc"]"
 set file_added [add_files -norecurse -fileset $obj $file]
-set file "$origin_dir/src/constraints/rgmii-01-3.xdc"
+set file "$origin_dir/src/constraints/rgmii-0123.xdc"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property "file_type" "XDC" $file_obj
@@ -77,7 +79,7 @@ set_property "processing_order" "LATE" $file_obj
 
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]
-set_property "target_constrs_file" "[file normalize "$origin_dir/src/constraints/kcu105-lpc.xdc"]" $obj
+set_property "target_constrs_file" "[file normalize "$origin_dir/src/constraints/kcu105-hpc.xdc"]" $obj
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
@@ -121,7 +123,7 @@ current_run -implementation [get_runs impl_1]
 puts "INFO: Project created:${design_name}"
 
 # Create block design
-set ports {0 1 3}
+set ports {0 1 2 3}
 source $origin_dir/src/bd/design_1-mb-us.tcl
 
 # Generate the wrapper

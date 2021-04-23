@@ -37,6 +37,13 @@ set oldCurInst [current_bd_instance .]
 # Set parent object as current
 current_bd_instance $parentObj
 
+# Virtex designs have slightly different TEMAC clock connections
+if {[string match "vc70*" $design_name]} {
+  set virtex_design 1
+} else {
+  set virtex_design 0
+}
+
 # Ports with shared logic
 # Warning: We are assuming that these ports are included in the ports list
 set shared_logic_ports {0 4}
@@ -163,8 +170,6 @@ foreach port $ports {
   assign_bd_address -target_address_space /eth_driver_$port/s_axi [get_bd_addr_segs tri_mode_ethernet_mac_${port}/s_axi/Reg] -force
 }
 
-set virtex_design 0
-
 # Connect gtx_clk inputs:
 #   Artix, Kintex: Connect the gtx_clk and gtx_clk90 inputs to the TEMAC with shared logic
 #   Virtex: Connect the gtx_clk to the clock wizard output (gtx_clk90 does not exist for Virtex)
@@ -178,10 +183,8 @@ foreach port $ports {
   # If this port is on the 1st Ethernet FMC, then use 1st shared logic port
   if {$port <= 3} {
     set shared_logic_port [lindex $shared_logic_ports 0]
-    set clk_wiz_index 0
   } else {
     set shared_logic_port [lindex $shared_logic_ports 1]
-    set clk_wiz_index 1
   }
   
   if {$virtex_design} {
