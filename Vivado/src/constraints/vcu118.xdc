@@ -412,3 +412,18 @@ set_property CONFIG_MODE BPI16 [current_design]
 set_property CFGBVS GND [current_design]
 set_property CONFIG_VOLTAGE 1.8 [current_design]
 
+# [DRC PDRC-203] BITSLICE0 not available during BISC: The port mdio_io_port_3_io is assigned to a PACKAGE_PIN that uses BITSLICE_1 of a Byte that will be using calibration. The signal connected to mdio_io_port_3_io will not be available during calibration and will only be available after RDY asserts. If this condition is not acceptable for your design and board layout, mdio_io_port_3_io will have to be moved to another PACKAGE_PIN that is not undergoing calibration or be moved to a PACKAGE_PIN location that is not BITSLICE_0 or BITSLICE_6 on that same Byte. If this condition is acceptable for your design and board layout, this DRC can be bypassed by acknowledging the condition and setting the following XDC constraint: 
+set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports mdio_io_port_3_io]
+
+# [DRC PDRC-203] BITSLICE0 not available during BISC: The port rgmii_port_1_rxc is assigned to a PACKAGE_PIN that uses BITSLICE_1 of a Byte that will be using calibration. The signal connected to rgmii_port_1_rxc will not be available during calibration and will only be available after RDY asserts. If this condition is not acceptable for your design and board layout, rgmii_port_1_rxc will have to be moved to another PACKAGE_PIN that is not undergoing calibration or be moved to a PACKAGE_PIN location that is not BITSLICE_0 or BITSLICE_6 on that same Byte. If this condition is acceptable for your design and board layout, this DRC can be bypassed by acknowledging the condition and setting the following XDC constraint: 
+set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports rgmii_port_1_rxc]
+
+# [DRC PDRC-203] BITSLICE0 not available during BISC: The port rgmii_port_3_rxc is assigned to a PACKAGE_PIN that uses BITSLICE_1 of a Byte that will be using calibration. The signal connected to rgmii_port_3_rxc will not be available during calibration and will only be available after RDY asserts. If this condition is not acceptable for your design and board layout, rgmii_port_3_rxc will have to be moved to another PACKAGE_PIN that is not undergoing calibration or be moved to a PACKAGE_PIN location that is not BITSLICE_0 or BITSLICE_6 on that same Byte. If this condition is acceptable for your design and board layout, this DRC can be bypassed by acknowledging the condition and setting the following XDC constraint: 
+set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports rgmii_port_3_rxc]
+
+# [Place 30-675] Sub-optimal placement for a global clock-capable IO pin and BUFG pair.If this sub optimal condition is acceptable for this design, you may use the CLOCK_DEDICATED_ROUTE constraint in the .xdc file to demote this message to a WARNING. However, the use of this override is highly discouraged. These examples can be used directly in the .xdc file to override this clock rule.
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets vcu118_procless_i/temac_1/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
+
+# [Place 30-675] Sub-optimal placement for a global clock-capable IO pin and BUFG pair.If this sub optimal condition is acceptable for this design, you may use the CLOCK_DEDICATED_ROUTE constraint in the .xdc file to demote this message to a WARNING. However, the use of this override is highly discouraged. These examples can be used directly in the .xdc file to override this clock rule.
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets vcu118_procless_i/temac_3/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
+

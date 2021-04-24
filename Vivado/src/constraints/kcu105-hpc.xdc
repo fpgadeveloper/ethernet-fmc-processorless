@@ -15,7 +15,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_3_rd[3]}]
 set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_1_rxc]
 set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_1_rx_ctl]
 set_property IOSTANDARD LVCMOS18 [get_ports mdio_io_port_0_mdc]
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_0[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports reset_port_0]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_1_rd[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_1_rd[3]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {ref_clk_oe[0]}]
@@ -54,19 +54,19 @@ set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_0_tx_ctl]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_1_td[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_1_txc]
 set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_1_tx_ctl]
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_1[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports reset_port_1]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_2_rd[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_2_td[0]}]
 set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_2_txc]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_2_td[3]}]
 set_property IOSTANDARD LVCMOS18 [get_ports mdio_io_port_2_mdc]
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_2[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports reset_port_2]
 set_property IOSTANDARD LVCMOS18 [get_ports {rgmii_port_3_td[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_3_txc]
 set_property IOSTANDARD LVCMOS18 [get_ports rgmii_port_3_tx_ctl]
 set_property IOSTANDARD LVCMOS18 [get_ports mdio_io_port_3_mdc]
 set_property IOSTANDARD LVCMOS18 [get_ports mdio_io_port_3_io]
-set_property IOSTANDARD LVCMOS18 [get_ports {reset_port_3[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports reset_port_3]
 
 set_property PACKAGE_PIN D13 [get_ports {rgmii_port_1_rd[0]}]
 set_property PACKAGE_PIN C13 [get_ports mdio_io_port_0_io]
@@ -80,7 +80,7 @@ set_property PACKAGE_PIN G21 [get_ports {rgmii_port_3_rd[3]}]
 set_property PACKAGE_PIN G9 [get_ports rgmii_port_1_rxc]
 set_property PACKAGE_PIN F9 [get_ports rgmii_port_1_rx_ctl]
 set_property PACKAGE_PIN L13 [get_ports mdio_io_port_0_mdc]
-set_property PACKAGE_PIN K13 [get_ports {reset_port_0[0]}]
+set_property PACKAGE_PIN K13 [get_ports reset_port_0]
 set_property PACKAGE_PIN J9 [get_ports {rgmii_port_1_rd[1]}]
 set_property PACKAGE_PIN H9 [get_ports {rgmii_port_1_rd[3]}]
 set_property PACKAGE_PIN D9 [get_ports {ref_clk_oe[0]}]
@@ -119,19 +119,19 @@ set_property PACKAGE_PIN E8 [get_ports rgmii_port_0_tx_ctl]
 set_property PACKAGE_PIN K11 [get_ports {rgmii_port_1_td[1]}]
 set_property PACKAGE_PIN J11 [get_ports rgmii_port_1_txc]
 set_property PACKAGE_PIN D8 [get_ports rgmii_port_1_tx_ctl]
-set_property PACKAGE_PIN C8 [get_ports {reset_port_1[0]}]
+set_property PACKAGE_PIN C8 [get_ports reset_port_1]
 set_property PACKAGE_PIN C21 [get_ports {rgmii_port_2_rd[1]}]
 set_property PACKAGE_PIN C22 [get_ports {rgmii_port_2_td[0]}]
 set_property PACKAGE_PIN F23 [get_ports rgmii_port_2_txc]
 set_property PACKAGE_PIN F24 [get_ports {rgmii_port_2_td[3]}]
 set_property PACKAGE_PIN E20 [get_ports mdio_io_port_2_mdc]
-set_property PACKAGE_PIN E21 [get_ports {reset_port_2[0]}]
+set_property PACKAGE_PIN E21 [get_ports reset_port_2]
 set_property PACKAGE_PIN B21 [get_ports {rgmii_port_3_td[1]}]
 set_property PACKAGE_PIN B22 [get_ports rgmii_port_3_txc]
 set_property PACKAGE_PIN C26 [get_ports rgmii_port_3_tx_ctl]
 set_property PACKAGE_PIN B26 [get_ports mdio_io_port_3_mdc]
 set_property PACKAGE_PIN E26 [get_ports mdio_io_port_3_io]
-set_property PACKAGE_PIN D26 [get_ports {reset_port_3[0]}]
+set_property PACKAGE_PIN D26 [get_ports reset_port_3]
 
 #create_clock -period 8.000 -name ref_clk_p -waveform {0.000 4.000} [get_ports ref_clk_p]
 
@@ -308,7 +308,7 @@ create_waiver -quiet -type CDC -id {CDC-10} -user "tri_mode_ethernet_mac" -tags 
 create_waiver -quiet -type CDC -id {CDC-11} -user "tri_mode_ethernet_mac" -tags "11999" -desc "Part of reset synchronizer. Safe to ignore" -from [get_pins example_resets/glbl_reset_gen/reset_sync4/C] -to [list [get_pins -of [get_cells -hier -filter {name =~ */sync_glbl_rstn_tx_clk/async_rst0_reg*}] -filter {name =~ *CLR}] [get_pins -of [get_cells -hier -filter {name =~ */sync_stats_reset/async_rst0_reg*}] -filter {name =~ *PRE}] ]
 
 # The port mdio_io_port_3_mdio_io is assigned to a PACKAGE_PIN that uses BITSLICE_0
-# of a Byte that will be using calibration. The signal connected to mdio_io_port_3_mdio_io
+# of a Byte that will be using calibration. The signal connected to mdio_io_port_3_io
 # will not be available during calibration and will only be available after RDY asserts.
 # If this condition is not acceptable for your design and board layout,
 # mdio_io_port_3_mdio_io will have to be moved to another PACKAGE_PIN that is not
@@ -316,7 +316,7 @@ create_waiver -quiet -type CDC -id {CDC-11} -user "tri_mode_ethernet_mac" -tags 
 # BITSLICE_6 on that same Byte. If this condition is acceptable for your design and board
 # layout, this DRC can be bypassed by acknowledging the condition and setting the following
 # XDC constraint:
-set_property UNAVAILABLE_DURING_CALIBRATION true [get_ports mdio_io_port_3_mdio_io]
+set_property UNAVAILABLE_DURING_CALIBRATION true [get_ports mdio_io_port_3_io]
 
 # Configuration via Quad SPI settings for KCU105
 set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]

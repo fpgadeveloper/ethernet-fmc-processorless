@@ -93,21 +93,21 @@ foreach port $ports {
   create_bd_cell -type module -reference tri_mode_ethernet_mac_0_example_design eth_driver_$port
 
   # Create the TEMAC IP
-  create_bd_cell -type ip -vlnv xilinx.com:ip:tri_mode_ethernet_mac tri_mode_ethernet_mac_$port
+  create_bd_cell -type ip -vlnv xilinx.com:ip:tri_mode_ethernet_mac temac_$port
 
   # If this is a shared logic port, then "Include shared logic"
   if {[lsearch -exact $shared_logic_ports $port] >= 0} {
-    set_property -dict [list CONFIG.Physical_Interface {RGMII} CONFIG.SupportLevel {1}] [get_bd_cells tri_mode_ethernet_mac_$port]
-    connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins tri_mode_ethernet_mac_${port}/gtx_clk]
-    connect_bd_net [get_bd_pins clk_wiz_0/clk_out3] [get_bd_pins tri_mode_ethernet_mac_${port}/refclk]
+    set_property -dict [list CONFIG.Physical_Interface {RGMII} CONFIG.SupportLevel {1}] [get_bd_cells temac_$port]
+    connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins temac_${port}/gtx_clk]
+    connect_bd_net [get_bd_pins clk_wiz_0/clk_out3] [get_bd_pins temac_${port}/refclk]
   } else {
-    set_property -dict [list CONFIG.Physical_Interface {RGMII} CONFIG.SupportLevel {0}] [get_bd_cells tri_mode_ethernet_mac_$port]
+    set_property -dict [list CONFIG.Physical_Interface {RGMII} CONFIG.SupportLevel {0}] [get_bd_cells temac_$port]
   }
 
   # Create interface connections
-  connect_bd_intf_net -intf_net eth_driver_${port}_s_axi [get_bd_intf_pins eth_driver_$port/s_axi] [get_bd_intf_pins tri_mode_ethernet_mac_${port}/s_axi]
-  connect_bd_intf_net -intf_net eth_driver_${port}_tx_axis_mac [get_bd_intf_pins eth_driver_$port/tx_axis_mac] [get_bd_intf_pins tri_mode_ethernet_mac_${port}/s_axis_tx]
-  connect_bd_intf_net -intf_net tri_mode_ethernet_mac_${port}_m_axis_rx [get_bd_intf_pins eth_driver_$port/rx_axis_mac] [get_bd_intf_pins tri_mode_ethernet_mac_${port}/m_axis_rx]
+  connect_bd_intf_net -intf_net eth_driver_${port}_s_axi [get_bd_intf_pins eth_driver_$port/s_axi] [get_bd_intf_pins temac_${port}/s_axi]
+  connect_bd_intf_net -intf_net eth_driver_${port}_tx_axis_mac [get_bd_intf_pins eth_driver_$port/tx_axis_mac] [get_bd_intf_pins temac_${port}/s_axis_tx]
+  connect_bd_intf_net -intf_net temac_${port}_m_axis_rx [get_bd_intf_pins eth_driver_$port/rx_axis_mac] [get_bd_intf_pins temac_${port}/m_axis_rx]
 
   # Create port connections
   
@@ -115,10 +115,10 @@ foreach port $ports {
   # Make AXI Ethernet ports external: MDIO, RGMII and RESET
   # MDIO
   create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_io:1.0 mdio_io_port_${port}
-  connect_bd_intf_net [get_bd_intf_pins tri_mode_ethernet_mac_${port}/mdio_external] [get_bd_intf_ports mdio_io_port_${port}]
+  connect_bd_intf_net [get_bd_intf_pins temac_${port}/mdio_external] [get_bd_intf_ports mdio_io_port_${port}]
   # RGMII
   create_bd_intf_port -mode Master -vlnv xilinx.com:interface:rgmii_rtl:1.0 rgmii_port_${port}
-  connect_bd_intf_net [get_bd_intf_pins tri_mode_ethernet_mac_${port}/rgmii] [get_bd_intf_ports rgmii_port_${port}]
+  connect_bd_intf_net [get_bd_intf_pins temac_${port}/rgmii] [get_bd_intf_ports rgmii_port_${port}]
   # RESET
   create_bd_port -dir O -type rst reset_port_${port}
   connect_bd_net [get_bd_pins /eth_driver_${port}/phy_resetn] [get_bd_ports reset_port_${port}]
@@ -140,34 +140,34 @@ foreach port $ports {
 
   # Global reset
   connect_bd_net [get_bd_ports glbl_rst] [get_bd_pins eth_driver_$port/glbl_rst]
-  connect_bd_net [get_bd_pins eth_driver_$port/glbl_rstn] [get_bd_pins tri_mode_ethernet_mac_$port/glbl_rstn]
+  connect_bd_net [get_bd_pins eth_driver_$port/glbl_rstn] [get_bd_pins temac_$port/glbl_rstn]
 
   # Driver to TEMAC connections
-  connect_bd_net -net eth_driver_${port}_pause_req [get_bd_pins eth_driver_$port/pause_req] [get_bd_pins tri_mode_ethernet_mac_${port}/pause_req]
-  connect_bd_net -net eth_driver_${port}_pause_val [get_bd_pins eth_driver_$port/pause_val] [get_bd_pins tri_mode_ethernet_mac_${port}/pause_val]
-  connect_bd_net -net eth_driver_${port}_rx_axi_rstn [get_bd_pins eth_driver_$port/rx_axi_rstn] [get_bd_pins tri_mode_ethernet_mac_${port}/rx_axi_rstn]
-  connect_bd_net -net eth_driver_${port}_s_axi_resetn [get_bd_pins eth_driver_$port/s_axi_resetn] [get_bd_pins tri_mode_ethernet_mac_${port}/s_axi_resetn]
-  connect_bd_net -net eth_driver_${port}_tx_axi_rstn [get_bd_pins eth_driver_$port/tx_axi_rstn] [get_bd_pins tri_mode_ethernet_mac_${port}/tx_axi_rstn]
-  connect_bd_net -net eth_driver_${port}_tx_ifg_delay [get_bd_pins eth_driver_$port/tx_ifg_delay] [get_bd_pins tri_mode_ethernet_mac_${port}/tx_ifg_delay]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_rx_mac_aclk [get_bd_pins eth_driver_$port/rx_axis_mac_aclk] [get_bd_pins tri_mode_ethernet_mac_${port}/rx_mac_aclk]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_rx_reset [get_bd_pins eth_driver_$port/rx_reset] [get_bd_pins tri_mode_ethernet_mac_${port}/rx_reset]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_rx_statistics_valid [get_bd_pins eth_driver_$port/rx_statistics_valid] [get_bd_pins tri_mode_ethernet_mac_${port}/rx_statistics_valid]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_rx_statistics_vector [get_bd_pins eth_driver_$port/rx_statistics_vector] [get_bd_pins tri_mode_ethernet_mac_${port}/rx_statistics_vector]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_tx_mac_aclk [get_bd_pins eth_driver_$port/tx_axis_mac_aclk] [get_bd_pins tri_mode_ethernet_mac_${port}/tx_mac_aclk]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_tx_reset [get_bd_pins eth_driver_$port/tx_reset] [get_bd_pins tri_mode_ethernet_mac_${port}/tx_reset]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_tx_statistics_valid [get_bd_pins eth_driver_$port/tx_statistics_valid] [get_bd_pins tri_mode_ethernet_mac_${port}/tx_statistics_valid]
-  connect_bd_net -net tri_mode_ethernet_mac_${port}_tx_statistics_vector [get_bd_pins eth_driver_$port/tx_statistics_vector] [get_bd_pins tri_mode_ethernet_mac_${port}/tx_statistics_vector]
+  connect_bd_net -net eth_driver_${port}_pause_req [get_bd_pins eth_driver_$port/pause_req] [get_bd_pins temac_${port}/pause_req]
+  connect_bd_net -net eth_driver_${port}_pause_val [get_bd_pins eth_driver_$port/pause_val] [get_bd_pins temac_${port}/pause_val]
+  connect_bd_net -net eth_driver_${port}_rx_axi_rstn [get_bd_pins eth_driver_$port/rx_axi_rstn] [get_bd_pins temac_${port}/rx_axi_rstn]
+  connect_bd_net -net eth_driver_${port}_s_axi_resetn [get_bd_pins eth_driver_$port/s_axi_resetn] [get_bd_pins temac_${port}/s_axi_resetn]
+  connect_bd_net -net eth_driver_${port}_tx_axi_rstn [get_bd_pins eth_driver_$port/tx_axi_rstn] [get_bd_pins temac_${port}/tx_axi_rstn]
+  connect_bd_net -net eth_driver_${port}_tx_ifg_delay [get_bd_pins eth_driver_$port/tx_ifg_delay] [get_bd_pins temac_${port}/tx_ifg_delay]
+  connect_bd_net -net temac_${port}_rx_mac_aclk [get_bd_pins eth_driver_$port/rx_axis_mac_aclk] [get_bd_pins temac_${port}/rx_mac_aclk]
+  connect_bd_net -net temac_${port}_rx_reset [get_bd_pins eth_driver_$port/rx_reset] [get_bd_pins temac_${port}/rx_reset]
+  connect_bd_net -net temac_${port}_rx_statistics_valid [get_bd_pins eth_driver_$port/rx_statistics_valid] [get_bd_pins temac_${port}/rx_statistics_valid]
+  connect_bd_net -net temac_${port}_rx_statistics_vector [get_bd_pins eth_driver_$port/rx_statistics_vector] [get_bd_pins temac_${port}/rx_statistics_vector]
+  connect_bd_net -net temac_${port}_tx_mac_aclk [get_bd_pins eth_driver_$port/tx_axis_mac_aclk] [get_bd_pins temac_${port}/tx_mac_aclk]
+  connect_bd_net -net temac_${port}_tx_reset [get_bd_pins eth_driver_$port/tx_reset] [get_bd_pins temac_${port}/tx_reset]
+  connect_bd_net -net temac_${port}_tx_statistics_valid [get_bd_pins eth_driver_$port/tx_statistics_valid] [get_bd_pins temac_${port}/tx_statistics_valid]
+  connect_bd_net -net temac_${port}_tx_statistics_vector [get_bd_pins eth_driver_$port/tx_statistics_vector] [get_bd_pins temac_${port}/tx_statistics_vector]
   
   # Clocking
   connect_bd_net [get_bd_pins clk_wiz_0/locked] [get_bd_pins eth_driver_$port/dcm_locked]
   connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins eth_driver_$port/gtx_clk_bufg]
   connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins eth_driver_$port/s_axi_aclk]
-  connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins tri_mode_ethernet_mac_${port}/s_axi_aclk]
+  connect_bd_net [get_bd_pins clk_wiz_0/clk_out2] [get_bd_pins temac_${port}/s_axi_aclk]
 
   # Exclude from address map
-  #exclude_bd_addr_seg [get_bd_addr_segs tri_mode_ethernet_mac_$port/s_axi/Reg] -target_address_space [get_bd_addr_spaces eth_driver_$port/s_axi]
+  #exclude_bd_addr_seg [get_bd_addr_segs temac_$port/s_axi/Reg] -target_address_space [get_bd_addr_spaces eth_driver_$port/s_axi]
   # Assign address
-  assign_bd_address -target_address_space /eth_driver_$port/s_axi [get_bd_addr_segs tri_mode_ethernet_mac_${port}/s_axi/Reg] -force
+  assign_bd_address -target_address_space /eth_driver_$port/s_axi [get_bd_addr_segs temac_${port}/s_axi/Reg] -force
 }
 
 # Connect gtx_clk inputs:
@@ -188,10 +188,10 @@ foreach port $ports {
   }
   
   if {$virtex_design} {
-    connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins tri_mode_ethernet_mac_$port/gtx_clk]
+    connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins temac_$port/gtx_clk]
   } else {
-    connect_bd_net [get_bd_pins tri_mode_ethernet_mac_${shared_logic_port}/gtx_clk_out] [get_bd_pins tri_mode_ethernet_mac_${port}/gtx_clk]
-    connect_bd_net [get_bd_pins tri_mode_ethernet_mac_${shared_logic_port}/gtx_clk90_out] [get_bd_pins tri_mode_ethernet_mac_${port}/gtx_clk90]
+    connect_bd_net [get_bd_pins temac_${shared_logic_port}/gtx_clk_out] [get_bd_pins temac_${port}/gtx_clk]
+    connect_bd_net [get_bd_pins temac_${shared_logic_port}/gtx_clk90_out] [get_bd_pins temac_${port}/gtx_clk90]
   }
 }
 
