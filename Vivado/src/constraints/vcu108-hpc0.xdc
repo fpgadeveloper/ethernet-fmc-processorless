@@ -174,10 +174,11 @@ set_property IOSTANDARD  LVCMOS12 [get_ports reset_error]
 #set_property IOSTANDARD  LVCMOS12 [get_ports NOT_USED]
 
 #### Module DIP_Switches_4Bit constraints
-set_property PACKAGE_PIN BC40     [get_ports mac_speed[0]]
-set_property PACKAGE_PIN L19      [get_ports mac_speed[1]]
-set_property PACKAGE_PIN C37      [get_ports gen_tx_data]
-set_property PACKAGE_PIN C38      [get_ports chk_tx_data]
+# Note that the switch/net order is reversed: 1-SW3, 2-SW2, 3-SW1, 4-SW0
+set_property PACKAGE_PIN C38      [get_ports mac_speed[0]]
+set_property PACKAGE_PIN C37      [get_ports mac_speed[1]]
+set_property PACKAGE_PIN L19      [get_ports gen_tx_data]
+set_property PACKAGE_PIN BC40     [get_ports chk_tx_data]
 set_property IOSTANDARD  LVCMOS12 [get_ports mac_speed[0]]
 set_property IOSTANDARD  LVCMOS12 [get_ports mac_speed[1]]
 set_property IOSTANDARD  LVCMOS12 [get_ports gen_tx_data]
@@ -214,8 +215,8 @@ set_false_path -from [get_ports chk_tx_data]
 
 # Ignore pause deserialiser as only present to prevent logic stripping
 set_false_path -from [get_ports pause_req*]
-set_false_path -from [get_cells pause_req* -filter {IS_SEQUENTIAL}]
-set_false_path -from [get_cells pause_val* -filter {IS_SEQUENTIAL}]
+set_false_path -from [get_cells *_i/eth_driver_*/inst/pause_req* -filter {IS_SEQUENTIAL}]
+set_false_path -from [get_cells *_i/eth_driver_*/inst/pause_val* -filter {IS_SEQUENTIAL}]
 
 
 ############################################################
@@ -230,7 +231,8 @@ set_false_path -to [get_ports frame_error_3]
 #set_false_path -to [get_ports serial_response]
 #set_false_path -to [get_ports tx_statistics_s]
 #set_false_path -to [get_ports rx_statistics_s]
-set_output_delay -clock $axi_clk_name 1 [get_ports mdio_io_port_0_mdc]
+set axi_clk_name [get_clocks clk_out2_*_clk_wiz_0_0]
+set_output_delay -clock $axi_clk_name 1 [get_ports mdio_io_port_*_mdc]
 
 # no timing associated with output
 set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to [get_ports reset_port_0]
@@ -240,22 +242,10 @@ set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to
 ############################################################
 set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to [get_cells -hier -filter {name =~ *axi_lite_reset_gen/reset_sync*}]
 
-
-# control signal is synched over clock boundary separately
-set_false_path -from [get_cells -hier -filter {name =~ tx_stats_reg[*]}] -to [get_cells -hier -filter {name =~ tx_stats_shift_reg[*]}]
-set_false_path -from [get_cells -hier -filter {name =~ rx_stats_reg[*]}] -to [get_cells -hier -filter {name =~ rx_stats_shift_reg[*]}]
-
-
-
 ############################################################
 # Ignore paths to resync flops
 ############################################################
 set_false_path -to [get_pins -filter {REF_PIN_NAME =~ PRE} -of [get_cells -hier -regexp {.*\/reset_sync.*}]]
-set_false_path -to [get_pins -filter {REF_PIN_NAME =~ D} -of [get_cells -regexp {.*\/.*_sync.*}]]
-set_max_delay -from [get_cells tx_stats_toggle_reg] -to [get_cells tx_stats_sync/data_sync_reg0] 6 -datapath_only
-set_max_delay -from [get_cells rx_stats_toggle_reg] -to [get_cells rx_stats_sync/data_sync_reg0] 6 -datapath_only
-
-
 
 #
 ####
@@ -305,103 +295,6 @@ create_waiver -quiet -type CDC -id {CDC-10} -user "tri_mode_ethernet_mac" -tags 
 
 create_waiver -quiet -type CDC -id {CDC-11} -user "tri_mode_ethernet_mac" -tags "11999" -desc "Part of reset synchronizer. Safe to ignore" -from [get_pins example_resets/glbl_reset_gen/reset_sync4/C] -to [list [get_pins -of [get_cells -hier -filter {name =~ */sync_glbl_rstn_tx_clk/async_rst0_reg*}] -filter {name =~ *CLR}] [get_pins -of [get_cells -hier -filter {name =~ */sync_stats_reset/async_rst0_reg*}] -filter {name =~ *PRE}] ]
 
-# BPI flash physical constraints for VCU108
-
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[0]]
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[1]]
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[2]]
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[3]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[4]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[5]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[6]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[7]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[8]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[9]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[10]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[11]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[12]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[13]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[14]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[15]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_adv_ldn]
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_ce_n]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_oe_n]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[0]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[1]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[2]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[3]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[4]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[5]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[6]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[7]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[8]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[9]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[10]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[11]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[12]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[13]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[14]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[15]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[16]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[17]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[18]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[19]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[20]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[21]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[22]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[23]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[24]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[25]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_we_n]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_wait[0]]
-
-#set_property PACKAGE_PIN AP11 [get_ports Linear_Flash_dq_io[0]]
-#set_property PACKAGE_PIN AN11 [get_ports Linear_Flash_dq_io[1]]
-#set_property PACKAGE_PIN AM11 [get_ports Linear_Flash_dq_io[2]]
-#set_property PACKAGE_PIN AL11 [get_ports Linear_Flash_dq_io[3]]
-set_property PACKAGE_PIN AM19 [get_ports Linear_Flash_dq_io[4]]
-set_property PACKAGE_PIN AM18 [get_ports Linear_Flash_dq_io[5]]
-set_property PACKAGE_PIN AN20 [get_ports Linear_Flash_dq_io[6]]
-set_property PACKAGE_PIN AP20 [get_ports Linear_Flash_dq_io[7]]
-set_property PACKAGE_PIN AN19 [get_ports Linear_Flash_dq_io[8]]
-set_property PACKAGE_PIN AN18 [get_ports Linear_Flash_dq_io[9]]
-set_property PACKAGE_PIN AR18 [get_ports Linear_Flash_dq_io[10]]
-set_property PACKAGE_PIN AR17 [get_ports Linear_Flash_dq_io[11]]
-set_property PACKAGE_PIN AT20 [get_ports Linear_Flash_dq_io[12]]
-set_property PACKAGE_PIN AT19 [get_ports Linear_Flash_dq_io[13]]
-set_property PACKAGE_PIN AT17 [get_ports Linear_Flash_dq_io[14]]
-set_property PACKAGE_PIN AU17 [get_ports Linear_Flash_dq_io[15]]
-set_property PACKAGE_PIN AW17 [get_ports Linear_Flash_adv_ldn]
-#set_property PACKAGE_PIN AJ11 [get_ports Linear_Flash_ce_n]
-set_property PACKAGE_PIN BF17 [get_ports Linear_Flash_oe_n]
-set_property PACKAGE_PIN AR20 [get_ports Linear_Flash_address[0]]
-set_property PACKAGE_PIN AR19 [get_ports Linear_Flash_address[1]]
-set_property PACKAGE_PIN AV20 [get_ports Linear_Flash_address[2]]
-set_property PACKAGE_PIN AW20 [get_ports Linear_Flash_address[3]]
-set_property PACKAGE_PIN AU19 [get_ports Linear_Flash_address[4]]
-set_property PACKAGE_PIN AU18 [get_ports Linear_Flash_address[5]]
-set_property PACKAGE_PIN AV19 [get_ports Linear_Flash_address[6]]
-set_property PACKAGE_PIN AV18 [get_ports Linear_Flash_address[7]]
-set_property PACKAGE_PIN AW18 [get_ports Linear_Flash_address[8]]
-set_property PACKAGE_PIN AY18 [get_ports Linear_Flash_address[9]]
-set_property PACKAGE_PIN AY19 [get_ports Linear_Flash_address[10]]
-set_property PACKAGE_PIN BA19 [get_ports Linear_Flash_address[11]]
-set_property PACKAGE_PIN BA17 [get_ports Linear_Flash_address[12]]
-set_property PACKAGE_PIN BB17 [get_ports Linear_Flash_address[13]]
-set_property PACKAGE_PIN BB19 [get_ports Linear_Flash_address[14]]
-set_property PACKAGE_PIN BC19 [get_ports Linear_Flash_address[15]]
-set_property PACKAGE_PIN BB18 [get_ports Linear_Flash_address[16]]
-set_property PACKAGE_PIN BC18 [get_ports Linear_Flash_address[17]]
-set_property PACKAGE_PIN AY20 [get_ports Linear_Flash_address[18]]
-set_property PACKAGE_PIN BA20 [get_ports Linear_Flash_address[19]]
-set_property PACKAGE_PIN BD18 [get_ports Linear_Flash_address[20]]
-set_property PACKAGE_PIN BD17 [get_ports Linear_Flash_address[21]]
-set_property PACKAGE_PIN BC20 [get_ports Linear_Flash_address[22]]
-set_property PACKAGE_PIN BD20 [get_ports Linear_Flash_address[23]]
-set_property PACKAGE_PIN BE20 [get_ports Linear_Flash_address[24]]
-set_property PACKAGE_PIN BF20 [get_ports Linear_Flash_address[25]]
-set_property PACKAGE_PIN BF16 [get_ports Linear_Flash_we_n]
-set_property PACKAGE_PIN BC23 [get_ports Linear_Flash_wait[0]]
 
 # Configuration via BPI flash for VCU108
 set_property BITSTREAM.CONFIG.BPI_SYNC_MODE Type1 [current_design]

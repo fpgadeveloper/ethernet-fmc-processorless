@@ -176,10 +176,11 @@ set_property IOSTANDARD  LVCMOS18 [get_ports reset_error]
 #set_property IOSTANDARD  LVCMOS18 [get_ports NOT_USED]
 
 #### Module DIP_Switches_4Bit constraints
-set_property PACKAGE_PIN AN16     [get_ports mac_speed[0]]
-set_property PACKAGE_PIN AN19     [get_ports mac_speed[1]]
-set_property PACKAGE_PIN AP18     [get_ports gen_tx_data]
-set_property PACKAGE_PIN AN14     [get_ports chk_tx_data]
+# Note that the switch/net order is reversed: 1-SW3, 2-SW2, 3-SW1, 4-SW0
+set_property PACKAGE_PIN AN14     [get_ports mac_speed[0]]
+set_property PACKAGE_PIN AP18     [get_ports mac_speed[1]]
+set_property PACKAGE_PIN AN19     [get_ports gen_tx_data]
+set_property PACKAGE_PIN AN16     [get_ports chk_tx_data]
 set_property IOSTANDARD  LVCMOS12 [get_ports mac_speed[0]]
 set_property IOSTANDARD  LVCMOS12 [get_ports mac_speed[1]]
 set_property IOSTANDARD  LVCMOS12 [get_ports gen_tx_data]
@@ -216,8 +217,8 @@ set_false_path -from [get_ports chk_tx_data]
 
 # Ignore pause deserialiser as only present to prevent logic stripping
 set_false_path -from [get_ports pause_req*]
-set_false_path -from [get_cells pause_req* -filter {IS_SEQUENTIAL}]
-set_false_path -from [get_cells pause_val* -filter {IS_SEQUENTIAL}]
+set_false_path -from [get_cells *_i/eth_driver_*/inst/pause_req* -filter {IS_SEQUENTIAL}]
+set_false_path -from [get_cells *_i/eth_driver_*/inst/pause_val* -filter {IS_SEQUENTIAL}]
 
 
 ############################################################
@@ -232,7 +233,8 @@ set_false_path -to [get_ports frame_error_3]
 #set_false_path -to [get_ports serial_response]
 #set_false_path -to [get_ports tx_statistics_s]
 #set_false_path -to [get_ports rx_statistics_s]
-set_output_delay -clock $axi_clk_name 1 [get_ports mdio_io_port_0_mdc]
+set axi_clk_name [get_clocks clk_out2_*_clk_wiz_0_0]
+set_output_delay -clock $axi_clk_name 1 [get_ports mdio_io_port_*_mdc]
 
 # no timing associated with output
 set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to [get_ports reset_port_0]
@@ -242,22 +244,10 @@ set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to
 ############################################################
 set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to [get_cells -hier -filter {name =~ *axi_lite_reset_gen/reset_sync*}]
 
-
-# control signal is synched over clock boundary separately
-set_false_path -from [get_cells -hier -filter {name =~ tx_stats_reg[*]}] -to [get_cells -hier -filter {name =~ tx_stats_shift_reg[*]}]
-set_false_path -from [get_cells -hier -filter {name =~ rx_stats_reg[*]}] -to [get_cells -hier -filter {name =~ rx_stats_shift_reg[*]}]
-
-
-
 ############################################################
 # Ignore paths to resync flops
 ############################################################
 set_false_path -to [get_pins -filter {REF_PIN_NAME =~ PRE} -of [get_cells -hier -regexp {.*\/reset_sync.*}]]
-set_false_path -to [get_pins -filter {REF_PIN_NAME =~ D} -of [get_cells -regexp {.*\/.*_sync.*}]]
-set_max_delay -from [get_cells tx_stats_toggle_reg] -to [get_cells tx_stats_sync/data_sync_reg0] 6 -datapath_only
-set_max_delay -from [get_cells rx_stats_toggle_reg] -to [get_cells rx_stats_sync/data_sync_reg0] 6 -datapath_only
-
-
 
 #
 ####

@@ -214,8 +214,8 @@ set_false_path -from [get_ports chk_tx_data]
 
 # Ignore pause deserialiser as only present to prevent logic stripping
 set_false_path -from [get_ports pause_req*]
-set_false_path -from [get_cells pause_req* -filter {IS_SEQUENTIAL}]
-set_false_path -from [get_cells pause_val* -filter {IS_SEQUENTIAL}]
+set_false_path -from [get_cells *_i/eth_driver_*/inst/pause_req* -filter {IS_SEQUENTIAL}]
+set_false_path -from [get_cells *_i/eth_driver_*/inst/pause_val* -filter {IS_SEQUENTIAL}]
 
 
 ############################################################
@@ -230,7 +230,8 @@ set_false_path -to [get_ports frame_error_3]
 #set_false_path -to [get_ports serial_response]
 #set_false_path -to [get_ports tx_statistics_s]
 #set_false_path -to [get_ports rx_statistics_s]
-set_output_delay -clock $axi_clk_name 1 [get_ports mdio_io_port_0_mdc]
+set axi_clk_name [get_clocks clk_out2_*_clk_wiz_0_0]
+set_output_delay -clock $axi_clk_name 1 [get_ports mdio_io_port_*_mdc]
 
 # no timing associated with output
 set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to [get_ports reset_port_0]
@@ -240,22 +241,10 @@ set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to
 ############################################################
 set_false_path -from [get_cells -hier -filter {name =~ *phy_resetn_int_reg}] -to [get_cells -hier -filter {name =~ *axi_lite_reset_gen/reset_sync*}]
 
-
-# control signal is synched over clock boundary separately
-set_false_path -from [get_cells -hier -filter {name =~ tx_stats_reg[*]}] -to [get_cells -hier -filter {name =~ tx_stats_shift_reg[*]}]
-set_false_path -from [get_cells -hier -filter {name =~ rx_stats_reg[*]}] -to [get_cells -hier -filter {name =~ rx_stats_shift_reg[*]}]
-
-
-
 ############################################################
 # Ignore paths to resync flops
 ############################################################
 set_false_path -to [get_pins -filter {REF_PIN_NAME =~ PRE} -of [get_cells -hier -regexp {.*\/reset_sync.*}]]
-set_false_path -to [get_pins -filter {REF_PIN_NAME =~ D} -of [get_cells -regexp {.*\/.*_sync.*}]]
-set_max_delay -from [get_cells tx_stats_toggle_reg] -to [get_cells tx_stats_sync/data_sync_reg0] 6 -datapath_only
-set_max_delay -from [get_cells rx_stats_toggle_reg] -to [get_cells rx_stats_sync/data_sync_reg0] 6 -datapath_only
-
-
 
 #
 ####
@@ -306,103 +295,6 @@ create_waiver -quiet -type CDC -id {CDC-10} -user "tri_mode_ethernet_mac" -tags 
 create_waiver -quiet -type CDC -id {CDC-11} -user "tri_mode_ethernet_mac" -tags "11999" -desc "Part of reset synchronizer. Safe to ignore" -from [get_pins example_resets/glbl_reset_gen/reset_sync4/C] -to [list [get_pins -of [get_cells -hier -filter {name =~ */sync_glbl_rstn_tx_clk/async_rst0_reg*}] -filter {name =~ *CLR}] [get_pins -of [get_cells -hier -filter {name =~ */sync_stats_reset/async_rst0_reg*}] -filter {name =~ *PRE}] ]
 
 
-# BPI flash physical constraints for VCU118
-
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[0]]
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[1]]
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[2]]
-#set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[3]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[4]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[5]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[6]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[7]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[8]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[9]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[10]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[11]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[12]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[13]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[14]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_dq_io[15]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[0]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[1]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[2]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[3]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[4]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[5]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[6]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[7]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[8]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[9]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[10]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[11]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[12]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[13]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[14]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[15]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[16]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[17]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[18]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[19]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[20]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[21]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[22]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[23]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[24]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_address[25]]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_adv_ldn]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_we_n]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_oe_n]
-set_property IOSTANDARD LVCMOS18 [get_ports Linear_Flash_wait[0]]
-
-
-#set_property PACKAGE_PIN AP11 [get_ports Linear_Flash_dq_io[0]]
-#set_property PACKAGE_PIN AN11 [get_ports Linear_Flash_dq_io[1]]
-#set_property PACKAGE_PIN AM11 [get_ports Linear_Flash_dq_io[2]]
-#set_property PACKAGE_PIN AL11 [get_ports Linear_Flash_dq_io[3]]
-set_property PACKAGE_PIN AM19 [get_ports Linear_Flash_dq_io[4]]
-set_property PACKAGE_PIN AM18 [get_ports Linear_Flash_dq_io[5]]
-set_property PACKAGE_PIN AN20 [get_ports Linear_Flash_dq_io[6]]
-set_property PACKAGE_PIN AP20 [get_ports Linear_Flash_dq_io[7]]
-set_property PACKAGE_PIN AN19 [get_ports Linear_Flash_dq_io[8]]
-set_property PACKAGE_PIN AN18 [get_ports Linear_Flash_dq_io[9]]
-set_property PACKAGE_PIN AR18 [get_ports Linear_Flash_dq_io[10]]
-set_property PACKAGE_PIN AR17 [get_ports Linear_Flash_dq_io[11]]
-set_property PACKAGE_PIN AT20 [get_ports Linear_Flash_dq_io[12]]
-set_property PACKAGE_PIN AT19 [get_ports Linear_Flash_dq_io[13]]
-set_property PACKAGE_PIN AT17 [get_ports Linear_Flash_dq_io[14]]
-set_property PACKAGE_PIN AU17 [get_ports Linear_Flash_dq_io[15]]
-set_property PACKAGE_PIN AR20 [get_ports Linear_Flash_address[0]]
-set_property PACKAGE_PIN AR19 [get_ports Linear_Flash_address[1]]
-set_property PACKAGE_PIN AV20 [get_ports Linear_Flash_address[2]]
-set_property PACKAGE_PIN AW20 [get_ports Linear_Flash_address[3]]
-set_property PACKAGE_PIN AU19 [get_ports Linear_Flash_address[4]]
-set_property PACKAGE_PIN AU18 [get_ports Linear_Flash_address[5]]
-set_property PACKAGE_PIN AV19 [get_ports Linear_Flash_address[6]]
-set_property PACKAGE_PIN AV18 [get_ports Linear_Flash_address[7]]
-set_property PACKAGE_PIN AW18 [get_ports Linear_Flash_address[8]]
-set_property PACKAGE_PIN AY18 [get_ports Linear_Flash_address[9]]
-set_property PACKAGE_PIN AY19 [get_ports Linear_Flash_address[10]]
-set_property PACKAGE_PIN BA19 [get_ports Linear_Flash_address[11]]
-set_property PACKAGE_PIN BA17 [get_ports Linear_Flash_address[12]]
-set_property PACKAGE_PIN BB17 [get_ports Linear_Flash_address[13]]
-set_property PACKAGE_PIN BB19 [get_ports Linear_Flash_address[14]]
-set_property PACKAGE_PIN BC19 [get_ports Linear_Flash_address[15]]
-set_property PACKAGE_PIN BB18 [get_ports Linear_Flash_address[16]]
-set_property PACKAGE_PIN BC18 [get_ports Linear_Flash_address[17]]
-set_property PACKAGE_PIN AY20 [get_ports Linear_Flash_address[18]]
-set_property PACKAGE_PIN BA20 [get_ports Linear_Flash_address[19]]
-set_property PACKAGE_PIN BD18 [get_ports Linear_Flash_address[20]]
-set_property PACKAGE_PIN BD17 [get_ports Linear_Flash_address[21]]
-set_property PACKAGE_PIN BC20 [get_ports Linear_Flash_address[22]]
-set_property PACKAGE_PIN BD20 [get_ports Linear_Flash_address[23]]
-set_property PACKAGE_PIN BE18 [get_ports Linear_Flash_address[24]]
-set_property PACKAGE_PIN BE17 [get_ports Linear_Flash_address[25]]
-set_property PACKAGE_PIN AW17 [get_ports Linear_Flash_adv_ldn]
-set_property PACKAGE_PIN BF16 [get_ports Linear_Flash_we_n]
-set_property PACKAGE_PIN BF17 [get_ports Linear_Flash_oe_n]
-set_property PACKAGE_PIN AL19 [get_ports Linear_Flash_wait[0]]
-
 # Configuration via BPI flash for VCU118
 set_property BITSTREAM.CONFIG.BPI_SYNC_MODE Type1 [current_design]
 set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN div-1 [current_design]
@@ -412,18 +304,42 @@ set_property CONFIG_MODE BPI16 [current_design]
 set_property CFGBVS GND [current_design]
 set_property CONFIG_VOLTAGE 1.8 [current_design]
 
-# [DRC PDRC-203] BITSLICE0 not available during BISC: The port mdio_io_port_3_io is assigned to a PACKAGE_PIN that uses BITSLICE_1 of a Byte that will be using calibration. The signal connected to mdio_io_port_3_io will not be available during calibration and will only be available after RDY asserts. If this condition is not acceptable for your design and board layout, mdio_io_port_3_io will have to be moved to another PACKAGE_PIN that is not undergoing calibration or be moved to a PACKAGE_PIN location that is not BITSLICE_0 or BITSLICE_6 on that same Byte. If this condition is acceptable for your design and board layout, this DRC can be bypassed by acknowledging the condition and setting the following XDC constraint: 
+# [DRC PDRC-203] BITSLICE0 not available during BISC: The port mdio_io_port_3_io is assigned to a PACKAGE_PIN that uses 
+# BITSLICE_1 of a Byte that will be using calibration. The signal connected to mdio_io_port_3_io will not be available 
+# during calibration and will only be available after RDY asserts. If this condition is not acceptable for your design 
+# and board layout, mdio_io_port_3_io will have to be moved to another PACKAGE_PIN that is not undergoing calibration or 
+# be moved to a PACKAGE_PIN location that is not BITSLICE_0 or BITSLICE_6 on that same Byte. If this condition is 
+# acceptable for your design and board layout, this DRC can be bypassed by acknowledging the condition and setting the 
+# following XDC constraint: 
 set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports mdio_io_port_3_io]
-
-# [DRC PDRC-203] BITSLICE0 not available during BISC: The port rgmii_port_1_rxc is assigned to a PACKAGE_PIN that uses BITSLICE_1 of a Byte that will be using calibration. The signal connected to rgmii_port_1_rxc will not be available during calibration and will only be available after RDY asserts. If this condition is not acceptable for your design and board layout, rgmii_port_1_rxc will have to be moved to another PACKAGE_PIN that is not undergoing calibration or be moved to a PACKAGE_PIN location that is not BITSLICE_0 or BITSLICE_6 on that same Byte. If this condition is acceptable for your design and board layout, this DRC can be bypassed by acknowledging the condition and setting the following XDC constraint: 
 set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports rgmii_port_1_rxc]
-
-# [DRC PDRC-203] BITSLICE0 not available during BISC: The port rgmii_port_3_rxc is assigned to a PACKAGE_PIN that uses BITSLICE_1 of a Byte that will be using calibration. The signal connected to rgmii_port_3_rxc will not be available during calibration and will only be available after RDY asserts. If this condition is not acceptable for your design and board layout, rgmii_port_3_rxc will have to be moved to another PACKAGE_PIN that is not undergoing calibration or be moved to a PACKAGE_PIN location that is not BITSLICE_0 or BITSLICE_6 on that same Byte. If this condition is acceptable for your design and board layout, this DRC can be bypassed by acknowledging the condition and setting the following XDC constraint: 
 set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports rgmii_port_3_rxc]
 
-# [Place 30-675] Sub-optimal placement for a global clock-capable IO pin and BUFG pair.If this sub optimal condition is acceptable for this design, you may use the CLOCK_DEDICATED_ROUTE constraint in the .xdc file to demote this message to a WARNING. However, the use of this override is highly discouraged. These examples can be used directly in the .xdc file to override this clock rule.
+# [Place 30-675] Sub-optimal placement for a global clock-capable IO pin and BUFG pair.If this sub optimal condition is 
+# acceptable for this design, you may use the CLOCK_DEDICATED_ROUTE constraint in the .xdc file to demote this message 
+# to a WARNING. However, the use of this override is highly discouraged. These examples can be used directly in the .xdc 
+# file to override this clock rule.
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets vcu118_procless_i/temac_1/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
-
-# [Place 30-675] Sub-optimal placement for a global clock-capable IO pin and BUFG pair.If this sub optimal condition is acceptable for this design, you may use the CLOCK_DEDICATED_ROUTE constraint in the .xdc file to demote this message to a WARNING. However, the use of this override is highly discouraged. These examples can be used directly in the .xdc file to override this clock rule.
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets vcu118_procless_i/temac_3/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
+
+# The following constraints help timing closure on ports 1 and 3
+
+set_property CLOCK_REGION X4Y7 [get_cells *_i/temac_1/inst/rgmii_interface/bufg_rgmii_rx_clk_iddr]
+set_property CLOCK_REGION X4Y8 [get_cells *_i/temac_3/inst/rgmii_interface/bufg_rgmii_rx_clk_iddr]
+
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_1/inst/rgmii_interface/rxdata_bus[0].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_1/inst/rgmii_interface/rxdata_bus[1].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_1/inst/rgmii_interface/rxdata_bus[2].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_1/inst/rgmii_interface/rxdata_bus[3].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_1/inst/rgmii_interface/delay_rgmii_rx_ctl}]
+
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_3/inst/rgmii_interface/rxdata_bus[0].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_3/inst/rgmii_interface/rxdata_bus[1].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_3/inst/rgmii_interface/rxdata_bus[2].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_3/inst/rgmii_interface/rxdata_bus[3].delay_rgmii_rxd}]
+set_property DELAY_VALUE 1100 [get_cells {*_i/temac_3/inst/rgmii_interface/delay_rgmii_rx_ctl}]
+
+# For timing closure on port 2
+
+set_property DELAY_VALUE 1000 [get_cells *_i/temac_2/inst/rgmii_interface/delay_rgmii_tx_clk]
 

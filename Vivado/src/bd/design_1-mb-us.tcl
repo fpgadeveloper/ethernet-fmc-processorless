@@ -81,6 +81,15 @@ set_property -dict [list CONFIG.FREQ_HZ {125000000}] [get_bd_intf_ports ref_clk]
 connect_bd_intf_net [get_bd_intf_ports ref_clk] [get_bd_intf_pins clk_wiz_0/CLK_IN1_D]
 connect_bd_net [get_bd_ports glbl_rst] [get_bd_pins clk_wiz_0/reset]
 
+# Create Ethernet FMC reference clock output enable and frequency select
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant ref_clk_oe
+create_bd_port -dir O -from 0 -to 0 ref_clk_oe
+connect_bd_net [get_bd_pins /ref_clk_oe/dout] [get_bd_ports ref_clk_oe]
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant ref_clk_fsel
+create_bd_port -dir O -from 0 -to 0 ref_clk_fsel
+connect_bd_net [get_bd_pins /ref_clk_fsel/dout] [get_bd_ports ref_clk_fsel]
+
 foreach port $ports {
   # Create the Ethernet driver module
   create_bd_cell -type module -reference tri_mode_ethernet_mac_0_example_design eth_driver_$port
