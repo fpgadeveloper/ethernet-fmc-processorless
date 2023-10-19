@@ -1,4 +1,11 @@
 Vivado/.Xil/
 Vivado/*.log
 Vivado/*.jou
-Vivado/*_procless/
+Vivado/ac701/
+Vivado/kc705*/
+Vivado/kcu105*/
+Vivado/vc707*/
+Vivado/vc709*/
+Vivado/vcu108*/
+Vivado/vcu118*/
+

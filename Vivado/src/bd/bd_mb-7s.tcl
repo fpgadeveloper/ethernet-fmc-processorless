@@ -1,5 +1,5 @@
 ################################################################
-# Block diagram build script for Microblaze Ultrascale FPGA designs
+# Block diagram build script for Microblaze 7-Series FPGA designs
 ################################################################
 
 # CHECKING IF PROJECT EXISTS
@@ -11,9 +11,9 @@ if { [get_projects -quiet] eq "" } {
 set cur_design [current_bd_design -quiet]
 set list_cells [get_bd_cells -quiet]
 
-create_bd_design $design_name
+create_bd_design $block_name
 
-current_bd_design $design_name
+current_bd_design $block_name
 
 set parentCell [get_bd_cells /]
 
@@ -36,6 +36,13 @@ set oldCurInst [current_bd_instance .]
 
 # Set parent object as current
 current_bd_instance $parentObj
+
+# Virtex designs have slightly different TEMAC clock connections
+if {[string match "vc70*" $target]} {
+  set virtex_design 1
+} else {
+  set virtex_design 0
+}
 
 # Ports with shared logic
 # Warning: We are assuming that these ports are included in the ports list
@@ -60,19 +67,19 @@ CONFIG.PRIM_IN_FREQ {125} \
 CONFIG.CLKOUT2_USED {true} \
 CONFIG.CLKOUT3_USED {true} \
 CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {125} \
-CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {333.333} \
+CONFIG.CLKOUT3_REQUESTED_OUT_FREQ {200} \
 CONFIG.CLKIN1_JITTER_PS {80.0} \
 CONFIG.MMCM_CLKFBOUT_MULT_F {8.000} \
 CONFIG.MMCM_CLKIN1_PERIOD {8.000} \
 CONFIG.MMCM_CLKOUT0_DIVIDE_F {8.000} \
 CONFIG.MMCM_CLKOUT1_DIVIDE {10} \
-CONFIG.MMCM_CLKOUT2_DIVIDE {3} \
+CONFIG.MMCM_CLKOUT2_DIVIDE {5} \
 CONFIG.NUM_OUT_CLKS {3} \
 CONFIG.CLKOUT1_JITTER {119.348} \
 CONFIG.CLKOUT1_PHASE_ERROR {96.948} \
 CONFIG.CLKOUT2_JITTER {124.615} \
 CONFIG.CLKOUT2_PHASE_ERROR {96.948} \
-CONFIG.CLKOUT3_JITTER {99.263} \
+CONFIG.CLKOUT3_JITTER {109.241} \
 CONFIG.CLKOUT3_PHASE_ERROR {96.948}] [get_bd_cells clk_wiz_0]
 
 # Create the ports for the external ref clock input
@@ -104,7 +111,6 @@ foreach port $ports {
     connect_bd_net [get_bd_pins clk_wiz_0/clk_out3] [get_bd_pins temac_${port}/refclk]
   } else {
     set_property -dict [list CONFIG.Physical_Interface {RGMII} CONFIG.SupportLevel {0}] [get_bd_cells temac_$port]
-    connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins temac_${port}/gtx_clk]
   }
 
   # Create interface connections
@@ -171,6 +177,31 @@ foreach port $ports {
   #exclude_bd_addr_seg [get_bd_addr_segs temac_$port/s_axi/Reg] -target_address_space [get_bd_addr_spaces eth_driver_$port/s_axi]
   # Assign address
   assign_bd_address -target_address_space /eth_driver_$port/s_axi [get_bd_addr_segs temac_${port}/s_axi/Reg] -force
+}
+
+# Connect gtx_clk inputs:
+#   Artix, Kintex: Connect the gtx_clk and gtx_clk90 inputs to the TEMAC with shared logic
+#   Virtex: Connect the gtx_clk to the clock wizard output (gtx_clk90 does not exist for Virtex)
+# We have to run this after all of the AXI Ethernet IPs are created, otherwise the shared logic port may not yet be instantiated
+foreach port $ports {
+  # If this is a shared logic port, clocks are already connected
+  if {[lsearch -exact $shared_logic_ports $port] >= 0} {
+    continue
+  }
+  
+  # If this port is on the 1st Ethernet FMC, then use 1st shared logic port
+  if {$port <= 3} {
+    set shared_logic_port [lindex $shared_logic_ports 0]
+  } else {
+    set shared_logic_port [lindex $shared_logic_ports 1]
+  }
+  
+  if {$virtex_design} {
+    connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins temac_$port/gtx_clk]
+  } else {
+    connect_bd_net [get_bd_pins temac_${shared_logic_port}/gtx_clk_out] [get_bd_pins temac_${port}/gtx_clk]
+    connect_bd_net [get_bd_pins temac_${shared_logic_port}/gtx_clk90_out] [get_bd_pins temac_${port}/gtx_clk90]
+  }
 }
 
 # Restore current instance

@@ -319,8 +319,8 @@ set_property UNAVAILABLE_DURING_CALIBRATION TRUE [get_ports rgmii_port_3_rxc]
 # acceptable for this design, you may use the CLOCK_DEDICATED_ROUTE constraint in the .xdc file to demote this message 
 # to a WARNING. However, the use of this override is highly discouraged. These examples can be used directly in the .xdc 
 # file to override this clock rule.
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets vcu118_procless_i/temac_1/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets vcu118_procless_i/temac_3/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets *_i/temac_1/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets *_i/temac_3/inst/rgmii_interface/rgmii_rxc_ibuf_i/O]
 
 # The following constraints help timing closure on ports 1 and 3
 
