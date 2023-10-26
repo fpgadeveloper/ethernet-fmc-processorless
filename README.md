@@ -59,10 +59,9 @@ To use the sources in this repository, please follow these steps:
 1. Download the repo as a zip file and extract the files to a directory
    on your hard drive --OR-- Git users: clone the repo to your hard drive
 2. Open Windows Explorer, browse to the repo files on your hard drive.
-3. In the Vivado directory, you will find multiple batch files (*.bat).
-   Double click on the batch file that is appropriate to your hardware,
-   for example, double-click `build-ac701.bat` if you are using the AC701.
-   This will generate a Vivado project for your hardware platform.
+3. In the `Vivado` directory, double click on the `build-vivado.bat` batch file.
+   You will be prompted to select a target design to build. You will find the project in
+   the folder `Vivado/<target>`.
 4. Run Vivado and open the project that was just created.
 5. Click Generate bitstream.
 
