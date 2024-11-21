@@ -5,7 +5,7 @@
 ## Description
 
 This repository contains example designs for experimenting with processorless (ie. state machine based) 
-Ethernet on FPGAs. The base hardware is the Opsero [Ethernet FMC](https://ethernetfmc.com "Ethernet FMC") 
+Ethernet on FPGAs. The base hardware is the Opsero [Ethernet FMC] (OP031) or [Robust Ethernet FMC] (OP041) 
 and the example designs support several FPGA development boards (listed below). The designs contain 4 TEMAC 
 blocks driven by custom IP (Verilog) to handle PHY configuration, packet generation and packet checking, all 
 from the FPGA fabric (no processor).
@@ -28,15 +28,15 @@ setting inputs to fixed values inside the FPGA design.
 
 ## Requirements
 
-This project is designed for version 2022.1 of Xilinx Vivado. 
+This project is designed for version 2024.1 of Xilinx Vivado. 
 If you are using an older version of the Xilinx tools, then refer to the 
 [release tags](https://github.com/fpgadeveloper/ethernet-fmc-processorless/tags "releases")
 to find the version of this repository that matches your version of the tools.
 
 In order to test this design on hardware, you will need the following:
 
-* Vivado 2022.1
-* [Ethernet FMC](https://ethernetfmc.com "Ethernet FMC")
+* Vivado 2024.1
+* [Ethernet FMC] or [Robust Ethernet FMC]
 * One of the below listed evaluation boards
 * [Xilinx Soft TEMAC license](https://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
 
@@ -69,7 +69,7 @@ To use the sources in this repository, please follow these steps:
 
 1. Open a command terminal and launch the setup script for Vivado:
    ```
-   source <path-to-vivado-install>/2022.1/settings64.sh
+   source <path-to-vivado-install>/2024.1/settings64.sh
    ```
 2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
    ```
@@ -208,3 +208,6 @@ This project was developed by [Opsero Inc.](https://opsero.com "Opsero Inc."),
 a tight-knit team of FPGA experts delivering FPGA products and design services to start-ups and tech companies. 
 Follow our blog, [FPGA Developer](https://www.fpgadeveloper.com "FPGA Developer"), for news, tutorials and
 updates on the awesome projects we work on.
+
+[Ethernet FMC]: https://ethernetfmc.com/docs/ethernet-fmc/overview/
+[Robust Ethernet FMC]: https://ethernetfmc.com/docs/robust-ethernet-fmc/overview/

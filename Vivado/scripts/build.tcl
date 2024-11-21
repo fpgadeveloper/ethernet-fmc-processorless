@@ -1,4 +1,4 @@
-# Opsero Electronic Design Inc. Copyright 2023
+# Opsero Electronic Design Inc. Copyright 2024
 #
 # Project build script
 #
@@ -17,7 +17,7 @@
 #*****************************************************************************************
 
 # Check the version of Vivado used
-set version_required "2022.1"
+set version_required "2024.1"
 set ver [lindex [split $::env(XILINX_VIVADO) /] end]
 if {![string equal $ver $version_required]} {
   puts "###############################"
@@ -199,10 +199,10 @@ set_property -name "top" -value "${block_name}_wrapper" -objects $obj
 
 # Create 'synth_1' run (if not found)
 if {[string equal [get_runs -quiet synth_1] ""]} {
-  create_run -name synth_1 -part ${fpga_part} -flow {Vivado Synthesis 2022} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
+  create_run -name synth_1 -part ${fpga_part} -flow {Vivado Synthesis 2024} -strategy "Vivado Synthesis Defaults" -report_strategy {No Reports} -constrset constrs_1
 } else {
   set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
-  set_property flow "Vivado Synthesis 2022" [get_runs synth_1]
+  set_property flow "Vivado Synthesis 2024" [get_runs synth_1]
 }
 set obj [get_runs synth_1]
 
@@ -211,10 +211,10 @@ current_run -synthesis [get_runs synth_1]
 
 # Create 'impl_1' run (if not found)
 if {[string equal [get_runs -quiet impl_1] ""]} {
-  create_run -name impl_1 -part ${fpga_part} -flow {Vivado Implementation 2022} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
+  create_run -name impl_1 -part ${fpga_part} -flow {Vivado Implementation 2024} -strategy "Vivado Implementation Defaults" -report_strategy {No Reports} -constrset constrs_1 -parent_run synth_1
 } else {
   set_property strategy "Vivado Implementation Defaults" [get_runs impl_1]
-  set_property flow "Vivado Implementation 2022" [get_runs impl_1]
+  set_property flow "Vivado Implementation 2024" [get_runs impl_1]
 }
 set obj [get_runs impl_1]
 set_property -name "steps.write_bitstream.args.readback_file" -value "0" -objects $obj
