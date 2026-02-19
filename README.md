@@ -28,14 +28,14 @@ setting inputs to fixed values inside the FPGA design.
 
 ## Requirements
 
-This project is designed for version 2024.1 of Xilinx Vivado. 
+This project is designed for version 2025.2 of Xilinx Vivado. 
 If you are using an older version of the Xilinx tools, then refer to the 
 [release tags](https://github.com/fpgadeveloper/ethernet-fmc-processorless/tags "releases")
 to find the version of this repository that matches your version of the tools.
 
 In order to test this design on hardware, you will need the following:
 
-* Vivado 2024.1
+* Vivado 2025.2
 * [Ethernet FMC] or [Robust Ethernet FMC]
 * One of the below listed evaluation boards
 * [Xilinx Soft TEMAC license](https://ethernetfmc.com/getting-a-license-for-the-xilinx-tri-mode-ethernet-mac/ "Xilinx Soft TEMAC license")
@@ -69,7 +69,7 @@ To use the sources in this repository, please follow these steps:
 
 1. Open a command terminal and launch the setup script for Vivado:
    ```
-   source <path-to-vivado-install>/2024.1/settings64.sh
+   source <path-to-vivado-install>/2025.2/settings64.sh
    ```
 2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
    ```

@@ -1,4 +1,5 @@
 Vivado/.Xil/
+Vivado/logs/
 Vivado/*.log
 Vivado/*.jou
 Vivado/ac701/
