@@ -1,5 +1,6 @@
 {
   "bd_name": "procless",
+  "prj_name": "ethernet-fmc-processorless",
   "groups": [
     {
       "label": "fpga",
