@@ -69,7 +69,7 @@ To use the sources in this repository, please follow these steps:
 
 1. Open a command terminal and launch the setup script for Vivado:
    ```
-   source <path-to-vivado-install>/2025.2/settings64.sh
+   source <path-to-xilinx-tools>/2025.2/Vivado/settings64.sh
    ```
 2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
    ```
