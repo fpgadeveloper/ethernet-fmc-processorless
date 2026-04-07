@@ -34,6 +34,7 @@ if {![string equal $ver $version_required]} {
 set_param board.repoPaths [get_property LOCAL_ROOT_DIR [xhub::get_xstores xilinx_board_store]]
 
 # Possible targets
+# UPDATER START
 dict set target_dict ac701 { xilinx.com ac701 mb-7s rgmii-0123 {0 1 2 3} }
 dict set target_dict kc705_hpc { xilinx.com kc705 mb-7s rgmii-0123 {0 1 2 3} }
 dict set target_dict kc705_lpc { xilinx.com kc705 mb-7s rgmii-0123 {0 1 2 3} }
@@ -42,6 +43,7 @@ dict set target_dict vc707_hpc1 { xilinx.com vc707 mb-7s rgmii-0123 {0 1 2 3} }
 dict set target_dict vc709 { xilinx.com vc709 mb-7s rgmii-0123 {0 1 2 3} }
 dict set target_dict vcu108_hpc0 { xilinx.com vcu108 mb-us rgmii-0123 {0 1 2 3} }
 dict set target_dict vcu118 { xilinx.com vcu118 mb-us rgmii-0123-vcu118 {0 1 2 3} }
+# UPDATER END
 
 # Function to display the options and get user input
 proc selectTarget {target_dict} {

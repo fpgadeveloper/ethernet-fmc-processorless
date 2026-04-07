@@ -7,14 +7,8 @@ MKDIR = mkdir -p
 RM = rm -rf
 ROOT_DIR = $(shell pwd)
 VIVADO = $(XILINX_VIVADO)/bin/vivado
+# UPDATER START
 BD_NAME = procless
-
-# defaults
-.DEFAULT_GOAL := xsa
-TARGET ?= none
-JOBS ?= 8
-
-# valid targets
 ac701_target := 0
 kc705_hpc_target := 0
 kc705_lpc_target := 0
@@ -23,6 +17,12 @@ vc707_hpc1_target := 0
 vc709_target := 0
 vcu108_hpc0_target := 0
 vcu118_target := 0
+# UPDATER END
+
+# defaults
+.DEFAULT_GOAL := xsa
+TARGET ?= none
+JOBS ?= 8
 
 TARGET_LIST := $(sort $(patsubst %_target,%,$(filter %_target,$(.VARIABLES))))
 

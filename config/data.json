@@ -1,0 +1,16 @@
+{
+  "bd_name": "procless",
+  "groups": [
+    {"label": "fpga", "name": "FPGA"}
+  ],
+  "designs": [
+    {"label": "ac701", "board": "AC701", "link": "https://www.xilinx.com/ac701", "url": "xilinx.com", "boardname": "ac701", "bdscript": "mb-7s", "lanecfg": "rgmii-0123", "lanes": [0,1,2,3], "connector": "HPC", "group": "fpga", "petalinux": false, "baremetal": false},
+    {"label": "kc705_hpc", "board": "KC705", "link": "https://www.xilinx.com/kc705", "url": "xilinx.com", "boardname": "kc705", "bdscript": "mb-7s", "lanecfg": "rgmii-0123", "lanes": [0,1,2,3], "connector": "HPC", "group": "fpga", "petalinux": false, "baremetal": false},
+    {"label": "kc705_lpc", "board": "KC705", "link": "https://www.xilinx.com/kc705", "url": "xilinx.com", "boardname": "kc705", "bdscript": "mb-7s", "lanecfg": "rgmii-0123", "lanes": [0,1,2,3], "connector": "LPC", "group": "fpga", "petalinux": false, "baremetal": false},
+    {"label": "kcu105_hpc", "board": "KCU105", "link": "https://www.xilinx.com/kcu105", "url": "xilinx.com", "boardname": "kcu105", "bdscript": "mb-us", "lanecfg": "rgmii-0123", "lanes": [0,1,2,3], "connector": "HPC", "group": "fpga", "petalinux": false, "baremetal": false},
+    {"label": "vc707_hpc1", "board": "VC707", "link": "https://www.xilinx.com/vc707", "url": "xilinx.com", "boardname": "vc707", "bdscript": "mb-7s", "lanecfg": "rgmii-0123", "lanes": [0,1,2,3], "connector": "HPC1", "group": "fpga", "petalinux": false, "baremetal": false},
+    {"label": "vc709", "board": "VC709", "link": "https://www.xilinx.com/vc709", "url": "xilinx.com", "boardname": "vc709", "bdscript": "mb-7s", "lanecfg": "rgmii-0123", "lanes": [0,1,2,3], "connector": "HPC", "group": "fpga", "petalinux": false, "baremetal": false},
+    {"label": "vcu108_hpc0", "board": "VCU108", "link": "https://www.xilinx.com/vcu108", "url": "xilinx.com", "boardname": "vcu108", "bdscript": "mb-us", "lanecfg": "rgmii-0123", "lanes": [0,1,2,3], "connector": "HPC0", "group": "fpga", "petalinux": false, "baremetal": false},
+    {"label": "vcu118", "board": "VCU118", "link": "https://www.xilinx.com/vcu118", "url": "xilinx.com", "boardname": "vcu118", "bdscript": "mb-us", "lanecfg": "rgmii-0123-vcu118", "lanes": [0,1,2,3], "connector": "FMCP", "group": "fpga", "petalinux": false, "baremetal": false}
+  ]
+}
