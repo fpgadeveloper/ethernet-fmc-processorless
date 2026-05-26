@@ -209,5 +209,5 @@ a tight-knit team of FPGA experts delivering FPGA products and design services t
 Follow our blog, [FPGA Developer](https://www.fpgadeveloper.com "FPGA Developer"), for news, tutorials and
 updates on the awesome projects we work on.
 
-[Ethernet FMC]: https://ethernetfmc.com/docs/ethernet-fmc/overview/
-[Robust Ethernet FMC]: https://ethernetfmc.com/docs/robust-ethernet-fmc/overview/
+[Ethernet FMC]: https://docs.opsero.com/op031/datasheet/overview/
+[Robust Ethernet FMC]: https://docs.opsero.com/op041/datasheet/overview/
