@@ -52,46 +52,52 @@ In order to test this design on hardware, you will need the following:
 
 ## Build instructions
 
-To use the sources in this repository, please follow these steps:
+Clone the repo and change into its directory:
+```
+git clone https://github.com/fpgadeveloper/ethernet-fmc-processorless.git
+cd ethernet-fmc-processorless
+```
 
-### Windows users
+### Cross-platform build runner
 
-1. Download the repo as a zip file and extract the files to a directory
-   on your hard drive --OR-- Git users: clone the repo to your hard drive
-2. Open Windows Explorer, browse to the repo files on your hard drive.
-3. In the `Vivado` directory, double click on the `build-vivado.bat` batch file.
-   You will be prompted to select a target design to build. You will find the project in
-   the folder `Vivado/<target>`.
-4. Run Vivado and open the project that was just created.
-5. Click Generate bitstream.
+All builds are driven by `build.py` at the repo root, on both Windows
+(git bash) and Linux. The `build.sh` / `build.bat` shim finds a suitable
+Python 3 automatically (including the one bundled with the AMD tools).
+Pick a target design label from the tables above (or run `./build.sh
+list`), then run the build command for the stage(s) you want — each
+command builds whatever it depends on automatically and skips anything
+already built. On Windows without git bash, run the same commands from
+Command Prompt or PowerShell using `build.bat` (e.g. `build.bat xsa
+--target <target>`).
 
-### Linux users
+You don't need to source the AMD tools first — the build runner finds
+Vivado, Vitis and PetaLinux automatically in their standard install
+locations and sets up the environment each stage needs. If your tools
+are installed somewhere non-standard and the runner can't find them,
+source the tool settings yourself before running the build.
 
-1. Open a command terminal and launch the setup script for Vivado:
-   ```
-   source <path-to-xilinx-tools>/2025.2/Vivado/settings64.sh
-   ```
-2. Clone the Git repository and `cd` into the `Vivado` folder of the repo:
-   ```
-   git clone https://github.com/fpgadeveloper/ethernet-fmc-processorless.git
-   cd ethernet-fmc-processorless/Vivado
-   ```
-3. Run make to create the Vivado project for the target board. You must replace `<target>` with a valid
-   target (alternatively, skip to step 5):
-   ```
-   make project TARGET=<target>
-   ```
-   Valid targets are: 
-   `ac701`,`kc705_hpc`,`kc705_lpc`,`kcu105_hpc`,`vc707_hpc1`,`vc709`,`vcu108_hpc0`,`vcu118`.
-   That will create the Vivado project and block design without generating a bitstream or exporting to XSA.
-4. Open the generated project in the Vivado GUI and click **Generate Bitstream**. Once the build is
-   complete, select **File->Export->Export Hardware** and be sure to tick **Include bitstream** and use
-   the default name and location for the XSA file.
-5. Alternatively, you can create the Vivado project, generate the bitstream and export to XSA (steps 3 and 4),
-   all from a single command:
-   ```
-   make xsa TARGET=<target>
-   ```
+#### Build the Vivado project (bitstream + XSA)
+
+```
+./build.sh xsa --target <target>
+```
+
+#### Build everything
+
+Builds all of the above that the target supports, then gathers the boot
+images into `bootimages/*.zip`:
+
+```
+./build.sh all --target <target>
+./build.sh all --target all          # every target in the repo
+```
+
+Also available: `status`, `clean`, `project` — see
+`./build.sh --help`. On Windows, the PetaLinux and Yocto stages require a
+Linux machine; the runner says so and prints the hand-off command. The
+legacy `make` interface still works on Linux (each Makefile now wraps
+`build.sh`) but is deprecated and will be removed at the next version
+update.
 
 ## Usage instructions
 

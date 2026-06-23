@@ -18,12 +18,6 @@ def load_json(filename):
     with open(filename) as f:
         return json.load(f)
 
-def get_vivado_targets(data):
-    targets = []
-    targets.append('BD_NAME = {}'.format(data['bd_name']))
-    targets += ['{}_target := 0'.format(design['label']) for design in data['designs']]
-    return(targets)
-
 def get_vivado_build_targets(data):
     targets = []
     for design in data['designs']:
@@ -77,11 +71,9 @@ def check_constraints(data):
 # Read the JSON data
 data = load_json('data.json')
 
-# Update the Vivado makefile
-vivado_makefile = '../Vivado/Makefile'
-vivado_targets = get_vivado_targets(data)
-update_file(vivado_makefile, vivado_targets)
-
+# NOTE: the root, Vivado and Vitis Makefiles are thin wrappers around
+# build.sh and read targets from data.json at runtime -- they no longer
+# contain generated target lists.
 # Update the Vivado build.tcl
 vivado_build_tcl = '../Vivado/scripts/build.tcl'
 vivado_build_targets = get_vivado_build_targets(data)

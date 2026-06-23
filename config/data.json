@@ -24,6 +24,7 @@
       ],
       "connector": "HPC",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     },
@@ -43,6 +44,7 @@
       ],
       "connector": "HPC",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     },
@@ -62,6 +64,7 @@
       ],
       "connector": "LPC",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     },
@@ -81,6 +84,7 @@
       ],
       "connector": "HPC",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     },
@@ -100,6 +104,7 @@
       ],
       "connector": "HPC1",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     },
@@ -119,6 +124,7 @@
       ],
       "connector": "HPC",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     },
@@ -138,6 +144,7 @@
       ],
       "connector": "HPC0",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     },
@@ -157,6 +164,7 @@
       ],
       "connector": "FMCP",
       "group": "fpga",
+      "ip_license": true,
       "petalinux": false,
       "baremetal": false
     }
