@@ -25,3 +25,6 @@ __pycache__/
 *.pyc
 Vivado/gen_files/
 Vivado/static_files/
+
+# build outputs gathered by build.py package (bitstream zips)
+bootimages/
