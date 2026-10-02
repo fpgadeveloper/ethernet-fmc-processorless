@@ -858,6 +858,27 @@ def _zip_tree(zip_path: Path, entries):
                 z.writestr(arc, src)
 
 
+def _zip_current(zip_path: Path, sources):
+    """True when the zip exists and is no older than the artifacts it gathers,
+    i.e. there is nothing to do. A zip left behind by an earlier build is
+    rewritten once a rebuild has produced newer artifacts -- 'package' used to
+    skip on the zip's mere existence and kept shipping the old image. A zip
+    whose artifacts are (partly) gone, e.g. after 'clean', is kept as it is:
+    it cannot be regenerated and is still the last thing that was built."""
+    if not zip_path.is_file():
+        return False
+    sources = [p for p in sources if isinstance(p, Path)]
+    if not sources or not all(p.is_file() for p in sources):
+        return True
+    return zip_path.stat().st_mtime >= max(p.stat().st_mtime for p in sources)
+
+
+def _wrote(zip_path: Path, existed: bool):
+    """Result text for a zip just written; says so when it replaced a stale one."""
+    return (f"rewrote {zip_path.name} (artifacts were newer than the zip)"
+            if existed else f"wrote {zip_path.name}")
+
+
 def _tar_member_bytes(tgz: Path, member: str):
     """One member's bytes from a .tar.gz, or None if tarball/member is missing."""
     import tarfile
@@ -883,25 +904,31 @@ def stage_bootimage(ctx: Context):
     if ctx.design.get("baremetal", False) and not has_vitis_flow(ctx):
         results.append("standalone zip skipped (repo has no Vitis flow)")
     elif ctx.design.get("baremetal", False):
-        if ctx.bare_zip.is_file():
+        entries = ([(p, p.relative_to(ctx.vit_boot).as_posix())
+                    for p in sorted(ctx.vit_boot.rglob("*")) if p.is_file()]
+                   if ctx.boot_file.is_file() else [])
+        existed = ctx.bare_zip.is_file()
+        if _zip_current(ctx.bare_zip, [p for p, _ in entries]):
             results.append("standalone zip exists")
         elif ctx.boot_file.is_file():
-            entries = [(p, p.relative_to(ctx.vit_boot).as_posix())
-                       for p in sorted(ctx.vit_boot.rglob("*")) if p.is_file()]
             _zip_tree(ctx.bare_zip, entries)
-            results.append(f"wrote {ctx.bare_zip.name}")
+            results.append(_wrote(ctx.bare_zip, existed))
         else:
             fail(f"baremetal boot file missing: {ctx.boot_file}")
 
     if ctx.design.get("petalinux", False):
         img = ctx.petl_img
-        if ctx.petl_zip.is_file():
+        existed = ctx.petl_zip.is_file()
+        petl_files = (["boot.mcs", "boot.prm", "image.elf", "system.bit"]
+                      if ctx.family == "microblaze" else
+                      ["BOOT.BIN", "image.ub", "boot.scr", "rootfs.tar.gz"])
+        if _zip_current(ctx.petl_zip, [img / w for w in petl_files]):
             results.append("petalinux zip exists")
         else:
             boot_readme = "Copy these files to the boot (FAT32) partition of the SD card\n"
             root_readme = "Extract contents of rootfs.tar.gz to the root partition of the SD card\n"
             if ctx.family == "microblaze":
-                wanted = ["boot.mcs", "boot.prm", "image.elf", "system.bit"]
+                wanted = petl_files
                 entries = [(img / "boot.mcs", "flash/boot.mcs"),
                            (img / "boot.prm", "flash/boot.prm"),
                            ("Program the flash with this MCS file to boot from flash\n",
@@ -911,7 +938,7 @@ def stage_bootimage(ctx: Context):
                            ("Load these files via JTAG to boot PetaLinux from JTAG\n",
                             "jtag/readme.txt")]
             else:
-                wanted = ["BOOT.BIN", "image.ub", "boot.scr", "rootfs.tar.gz"]
+                wanted = petl_files
                 entries = [(img / "BOOT.BIN", "boot/BOOT.BIN"),
                            (img / "image.ub", "boot/image.ub"),
                            (img / "boot.scr", "boot/boot.scr"),
@@ -928,11 +955,14 @@ def stage_bootimage(ctx: Context):
                          f"{rel_to_repo(img, ctx.repo.root)}: {', '.join(missing)}")
             else:
                 _zip_tree(ctx.petl_zip, entries)
-                results.append(f"wrote {ctx.petl_zip.name}")
+                results.append(_wrote(ctx.petl_zip, existed))
 
     if ctx.design.get("yocto", False):
         img = ctx.yocto_img
-        if ctx.yocto_zip.is_file():
+        existed = ctx.yocto_zip.is_file()
+        if _zip_current(ctx.yocto_zip,
+                        [img / w for w in ("rootfs.wic.xz", "rootfs.wic.bmap",
+                                           "BOOT.BIN")]):
             results.append("yocto zip exists")
         else:
             # The EDF Yocto wic is a full SD-card image; bmaptool uses the .bmap
@@ -986,7 +1016,7 @@ def stage_bootimage(ctx: Context):
                          f"{rel_to_repo(img, ctx.repo.root)}: {', '.join(missing)}")
             else:
                 _zip_tree(ctx.yocto_zip, entries)
-                results.append(f"wrote {ctx.yocto_zip.name}")
+                results.append(_wrote(ctx.yocto_zip, existed))
 
     if not has_software_flow(ctx):
         # Processor-less target: no boot image exists, and none of the blocks
@@ -994,7 +1024,11 @@ def stage_bootimage(ctx: Context):
         # produced, plus the configuration-memory image when the repo builds
         # one (stage 'cfgmem'). Gathered under the same naming scheme as the
         # other flows: <prj>_<target>_bitstream-<ver>.zip.
-        if ctx.bit_zip.is_file():
+        existed = ctx.bit_zip.is_file()
+        if _zip_current(ctx.bit_zip,
+                        [ctx.dev_image]
+                        + [p for p in (ctx.cfgmem_mcs, ctx.cfgmem_prm)
+                           if p.is_file()]):
             results.append("bitstream zip exists")
         elif ctx.dev_image.is_file():
             # (file, one-line description) for everything this target ships.
@@ -1019,7 +1053,7 @@ def stage_bootimage(ctx: Context):
                     readme += f"  {'':<{width}}  {cont}\n"
             entries.append((readme, "readme.txt"))
             _zip_tree(ctx.bit_zip, entries)
-            results.append(f"wrote {ctx.bit_zip.name}")
+            results.append(_wrote(ctx.bit_zip, existed))
         else:
             # Non-fatal on purpose: 'package' on a target that was never built
             # has always been a no-op, and repos run it over 'all' targets.
